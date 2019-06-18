@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const Collection = mongoose.model('Collection', {
+const collectionSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -26,6 +26,16 @@ const Collection = mongoose.model('Collection', {
       })
     }
   }
-});
+})
+
+collectionSchema.pre('save', async function (next) {
+  const user = this;
+
+  console.log('just before saving')
+
+  next();
+})
+
+const Collection = mongoose.model('Collection', collectionSchema);
 
 module.exports = Collection;
