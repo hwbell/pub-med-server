@@ -7,10 +7,14 @@ const collectionSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  createdBy: {
-    type: String,
-    default: "anonymous",
-    trim: true
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User'
+  },
+  createdAt: {
+    type: Date,
+    default: new Date()
   },
   articles: {
     type: Array,
