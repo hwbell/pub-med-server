@@ -13,6 +13,7 @@ router.get('/me', auth, async (req, res) => {
 /* POST a new user */
 router.post('/', async (req, res, next) => {
   const user = new User(req.body);
+  console.log( req.body || 'nothing received' )
 
   try {
     await user.save();

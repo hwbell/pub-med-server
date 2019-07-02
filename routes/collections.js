@@ -16,13 +16,37 @@ router.get('/', async (req, res, next) => {
 
 })
 
+// get a single Public Collection
+router.get('single/:id', async (req, res, next) => {
+  console.log('yoyo')
+  const _id = req.params.id;
+
+  try {
+    // const collection = await Collection.findById(_id);
+    const collection = await Collection.findOne({ _id, owner: req.user._id }) 
+    
+    if (!collection) {
+      return res.status(404).send();
+    }
+
+    res.send(collection);
+
+  } catch (e) {
+    res.status(404).send();
+  }
+
+})
+
 // get a user's Collections
 router.get('/me', auth, async (req, res, next) => {
 
+  // console.log('get request for users collections')
   try {
     const collections = await Collection.find({ owner: req.user._id });
+    
     res.send(collections);
   } catch (e) {
+    console.log(e)
     res.status(500).send(e);
   }
 
@@ -38,29 +62,10 @@ router.post('/', auth, async (req, res, next) => {
 
   try {
     await collection.save();
-    res.status(201).send(collection);
+    const collections = await Collection.find({ owner: req.user._id });
+    res.status(201).send(collections);
   } catch (e) {
     res.status(400).send(e);
-  }
-
-})
-
-// get a single Public Collection
-router.get('/:id', auth, async (req, res, next) => {
-  const _id = req.params.id;
-
-  try {
-    // const collection = await Collection.findById(_id);
-    const collection = await Collection.findOne({ _id, owner: req.user._id }) 
-    
-    if (!collection) {
-      return res.status(404).send();
-    }
-
-    res.send(collection);
-
-  } catch (e) {
-    res.status(404).send();
   }
 
 })
@@ -96,6 +101,21 @@ router.patch('/:id', auth, async (req, res) => {
 
   } catch(e) {  
     res.status(400).send(e);
+  }
+})
+
+// delete a user's collection
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const collection = await Collection.findOneAndDelete({ _id: req.params.id, owner: req.user._id})
+
+    if (!collection) {
+      return res.status(404).send();
+    }
+
+    res.send(collection);
+  } catch(e) {
+    res.statusCode(400).send;
   }
 })
 

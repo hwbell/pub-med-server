@@ -4,6 +4,7 @@ const validator = require('validator');
 const collectionSchema = new mongoose.Schema({
   name: {
     type: String,
+    unique: true,
     required: true,
     trim: true
   },
@@ -23,11 +24,7 @@ const collectionSchema = new mongoose.Schema({
       if (!array.length) {
         throw new Error('Array must not be empty, bruh.')
       }
-      array.forEach((article) => {
-        if (!article.url) {
-          throw new Error('Each article object must have a url')
-        } 
-      })
+      
     }
   }
 })

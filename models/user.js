@@ -2,12 +2,13 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Collection = require('./collection')
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     unique: true,
-    required: true,
+    // required: true,
     trim: true
   },
   password: {
@@ -105,6 +106,15 @@ userSchema.pre('save', async function (next) {
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
+
+  next();
+})
+
+// Delete the user's collections if they delete their profile
+userSchema.pre('remove', async function (next) {
+  const user = this;
+
+  await Collection.deleteMany({ owner: user._id});
 
   next();
 })
