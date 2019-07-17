@@ -18,7 +18,6 @@ router.get('/', async (req, res, next) => {
 
 // get a single Public Collection
 router.get('single/:id', async (req, res, next) => {
-  console.log('yoyo')
   const _id = req.params.id;
 
   try {
@@ -75,7 +74,7 @@ router.patch('/:id', auth, async (req, res) => {
   const id = req.params.id;
   
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['name', 'articles', 'lastUpdated'];
+  const allowedUpdates = ['name', 'articles'];
   const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
 
   if (!isValidUpdate) {
@@ -95,9 +94,13 @@ router.patch('/:id', auth, async (req, res) => {
     updates.forEach((update) => {
       collection[update] = req.body[update];
     });
+    collection.lastUpdated = new Date();
+
     await collection.save();
 
-    res.send(collection);
+    // send the new list back
+    const collections = await Collection.find({ owner: req.user._id });
+    res.status(201).send(collections);
 
   } catch(e) {  
     res.status(400).send(e);
@@ -112,8 +115,9 @@ router.delete('/:id', auth, async (req, res) => {
     if (!collection) {
       return res.status(404).send();
     }
-
-    res.send(collection);
+    // send the new list back
+    const collections = await Collection.find({ owner: req.user._id });
+    res.send(collections);
   } catch(e) {
     res.statusCode(400).send;
   }
