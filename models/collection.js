@@ -32,7 +32,7 @@ const collectionSchema = new mongoose.Schema({
 collectionSchema.pre('save', async function (next) {
   const user = this;
 
-  console.log('just before saving')
+  // console.log('just before saving')
 
   next();
 })

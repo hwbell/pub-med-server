@@ -17,12 +17,13 @@ router.get('/', async (req, res, next) => {
 })
 
 // get a single Public Collection
-router.get('single/:id', async (req, res, next) => {
-  const _id = req.params.id;
+router.get('/single/:id', async (req, res, next) => {
 
+  const _id = req.params.id;
+  
   try {
     // const collection = await Collection.findById(_id);
-    const collection = await Collection.findOne({ _id, owner: req.user._id }) 
+    const collection = await Collection.findOne({ _id }) 
     
     if (!collection) {
       return res.status(404).send();
