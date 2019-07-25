@@ -1,42 +1,16 @@
 const app = require('../app');
 const User = require('../models/user');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+
+const { userOneId, userOne, userTwo, setupDatabase } = require('./testSetup/db');
 
 // use supertest for route testing
 const request = require('supertest');
 
-const userOneId = new mongoose.Types.ObjectId();
-const userTwoId = new mongoose.Types.ObjectId();
+// 
 
-const userOne = {
-  _id: userOneId,
-  name: 'Harry',
-  password: 'regexmixup',
-  email: 'mogget@mail.com',
-  tokens: [
-    {
-      token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET)
-    }
-  ]
-}
-const userTwo = {
-  _id: userTwoId,
-  name: 'Mark',
-  password: 'asufrubf!!!',
-  email: 'mark@mail.com',
-  tokens: [
-    {
-      token: jwt.sign({ _id: userTwoId }, process.env.JWT_SECRET)
-    }
-  ]
-}
-describe('Collections endpoints', () => {
+describe('Users endpoints', () => {
 
-  beforeEach(async () => {
-    await User.deleteMany();
-    await new User(userOne).save();
-  })
+  beforeEach(setupDatabase);
 
   it('should post a new user', async () => {
     // use the same route as in the actual app
@@ -64,13 +38,19 @@ describe('Collections endpoints', () => {
   })
 
   it('should login an existing user', async () => {
-    await request(app)
+    const response = await request(app)
       .post('/users/login')
       .send({
         password: userOne.password,
         email: userOne.email
       })
       .expect(200)
+    const user = await User.findById(response.body.user._id);
+    const token = response.body.token;
+
+    expect(user.name).toBe(userOne.name);
+    expect(user.tokens[0].token).toEqual(userOne.tokens[0].token);
+
   })
 
   it('should not login an non-existent user', async () => {
@@ -84,11 +64,27 @@ describe('Collections endpoints', () => {
   })
 
   it('should logout a user', async () => {
-    await request(app)
+    let token = userOne.tokens[0].token;
+    const response = await request(app)
       .post('/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      .send()
+      .expect(200)
+
+    const user = await User.findById(userOne._id);
+    expect(user.tokens[user.tokens.length - 1]).not.toEqual(token)
+
+  })
+
+  it('should logout all sessions of a user', async () => {
+    const response = await request(app)
+      .post('/users/logoutAll')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .send()
       .expect(200)
+
+    const user = await User.findById(userOne._id);
+    expect(user.tokens.length).toBe(0);
   })
 
   it('should not logout a user without token', async () => {
@@ -108,11 +104,15 @@ describe('Collections endpoints', () => {
   })
 
   it('should get profile for user', async () => {
-    await request(app)
+    const response = await request(app)
       .get('/users/me')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .send()
       .expect(200)
+
+    const user = await User.findById(response.body._id);
+    expect(user._id).toEqual(userOne._id)
+
   })
 
   it('should not get profile for user without token', async () => {
@@ -124,11 +124,15 @@ describe('Collections endpoints', () => {
   })
 
   it('should delete a user profile', async () => {
-    await request(app)
+    const response = await request(app)
       .delete('/users/me')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .send()
       .expect(200)
+
+    const user = await User.findById(response.body._id);
+    expect(user).toBe(null);
+
   })
 
   it('should not delete a user profile without token', async () => {

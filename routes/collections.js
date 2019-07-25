@@ -64,6 +64,7 @@ router.post('/', auth, async (req, res, next) => {
     const collections = await Collection.find({ owner: req.user._id });
     res.status(201).send(collections);
   } catch (e) {
+    console.log(e)
     res.status(400).send(e);
   }
 
