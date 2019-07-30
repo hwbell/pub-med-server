@@ -5,15 +5,10 @@ require('../db/mongoose');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
 
-/* GET user's profile (logged in)*/
-router.get('/me', auth, async (req, res) => {
-  res.send(req.user);
-});
-
 /* POST a new user */
 router.post('/', async (req, res, next) => {
   const user = new User(req.body);
-  console.log( req.body || 'nothing received' )
+  console.log(req.body || 'nothing received')
 
   try {
     await user.save();
@@ -38,6 +33,59 @@ router.post('/login', async (req, res) => {
   }
 })
 
+/* GET user's profile (logged in)*/
+router.get('/me', auth, async (req, res) => {
+  try {
+    res.send(req.user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+/* PATCH a user's profile */
+router.patch('/me', auth, async (req, res) => {
+
+  const _id = req.user._id;
+
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['about', 'research', 'affiliations', 'interests'];
+  const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
+  // 
+  if (!isValidUpdate) {
+    return res.status(400).send({
+      error: 'Invalid update.'
+    })
+  }
+
+  try {
+    const user = await User.findOne({ _id: req.user._id })
+    // const collection = await Collection.findById(req.params.id);
+    // 
+    if (!user) {
+      console.log('no user found')
+      return res.status(404).send();
+    }
+
+    updates.forEach((update) => {
+      user[update] = req.body[update];
+      console.log(`${user.name}'s ${update} is now set to ${req.body[update]}`)
+    });
+    user.lastUpdated = new Date();
+
+    await user.save();
+
+    //   // send the new list back
+    const updatedUser = await User.findOne({ _id });
+
+    res.status(201).send(updatedUser);
+
+
+  } catch (e) {
+    res.status(400).send(e);
+  }
+
+})
+
 // logout a user
 router.post('/logout', auth, async (req, res) => {
   try {
@@ -47,7 +95,7 @@ router.post('/logout', auth, async (req, res) => {
     await req.user.save();
 
     res.send();
-  } catch(e) {
+  } catch (e) {
     res.status(500).send();
   }
 })
@@ -59,7 +107,7 @@ router.post('/logoutAll', auth, async (req, res) => {
     await req.user.save();
 
     res.send();
-  } catch(e) {
+  } catch (e) {
     res.status(500).send();
   }
 })
@@ -69,7 +117,7 @@ router.delete('/me', auth, async (req, res) => {
   try {
     await req.user.remove();
     res.send(req.user);
-  } catch(e) {
+  } catch (e) {
     res.status(500).send();
   }
 })

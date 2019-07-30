@@ -115,6 +115,43 @@ describe('Users endpoints', () => {
 
   })
 
+  it('should patch a users profile with valid info', async () => {
+
+    let userPatch = {
+      about: "Hi, my name is Mark! I am a chemist at UCSF.",
+      research: 'Biology, Neurology',
+      affiliations: 'University of California',
+      interests: 'science, medicine, artificial intelligence, history, travel'
+    }
+
+    const response = await request(app)
+      .patch('/users/me')
+      .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+      .send(userPatch)
+      .expect(201)
+
+    console.log(response.body)
+    const user = await User.findById(response.body._id);
+    expect(user.about).toEqual(userPatch.about);
+  })
+
+  it('should not patch a users profile with invalid info', async () => {
+
+    let userPatch = {
+      name: 'new name',
+      email: 'danger@changingyouremail.com'
+    }
+
+    const response = await request(app)
+      .patch('/users/me')
+      .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+      .send(userPatch)
+      .expect(400)
+
+  })
+
+
+
   it('should not get profile for user without token', async () => {
     await request(app)
       .get('/users/me')

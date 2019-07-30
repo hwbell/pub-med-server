@@ -1,6 +1,6 @@
 const app = require('../app');
 const Collection = require('../models/collection');
-
+const User = require('../models/user')
 const { userOne, userTwo, setupDatabase, collectionOne, collectionThree } = require('./testSetup/db');
 
 // use supertest for route testing
@@ -19,20 +19,23 @@ describe('Collections endpoints', () => {
     expect(response.body.length).toBe(2)
   })
 
-  it('should get a users collections', async () => {
+  it('should get a users collections and profile', async () => {
     const response = await request(app)
       .get('/collections/me')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .expect(200)
     
-    expect(response.body.length).toBe(1)
-    console.log(response.body[0]._id)
-    const collection = await Collection.findById(response.body[0]._id);
+    expect(response.body.collections.length).toBe(1)
+    // console.log(response.body.collections[0]._id)
+    const collection = await Collection.findById(response.body.collections[0]._id);
     expect(collection.name).toBe(collectionOne.name)
+
+    const user = await User.findById(response.body.user._id);
+    expect(user.name).toBe(userOne.name)
   })
 
   it('should get a collection by id', async () => {
-    let id = collectionOne._id.toString();
+    const id = collectionOne._id.toString();
     console.log(`/collections/single/${id}`)
     const response = await request(app)
       .get(`/collections/single/${id}`)

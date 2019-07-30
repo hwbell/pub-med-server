@@ -43,6 +43,19 @@ const userSchema = new mongoose.Schema({
       }
     }
   },
+  about: {
+    type: String
+  },
+  research: {
+    type: String
+  },
+  affiliations: {
+    type: String
+  },
+  interests: {
+    type: String
+  },
+
   tokens: [
     { 
       token: {

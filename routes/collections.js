@@ -3,6 +3,7 @@ var router = express.Router();
 require('../db/mongoose')
 const auth = require('../middleware/auth');
 const Collection = require('../models/collection');
+const User = require('../models/user');
 
 // get all the Public Collections
 router.get('/', async (req, res, next) => {
@@ -44,7 +45,10 @@ router.get('/me', auth, async (req, res, next) => {
   try {
     const collections = await Collection.find({ owner: req.user._id });
     
-    res.send(collections);
+    res.send({
+      user: req.user,
+      collections
+    });
   } catch (e) {
     console.log(e)
     res.status(500).send(e);
