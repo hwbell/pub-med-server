@@ -13,7 +13,7 @@ router.post('/', auth, async (req, res, next) => {
 
   try {
     await thread.save();
-    const threads = await Thread.findOne({ owner: req.user._id });
+    const threads = await Thread.find({ owner: req.user._id });
     res.status(201).send(threads);
   } catch (e) {
     console.log(e)

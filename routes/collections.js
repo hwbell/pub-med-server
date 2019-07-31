@@ -3,7 +3,7 @@ var router = express.Router();
 require('../db/mongoose')
 const auth = require('../middleware/auth');
 const Collection = require('../models/collection');
-const User = require('../models/user');
+const Thread = require('../models/thread');
 
 // get all the Public Collections
 router.get('/', async (req, res, next) => {
@@ -38,16 +38,18 @@ router.get('/single/:id', async (req, res, next) => {
 
 })
 
-// get a user's Collections
+// get a user's profile / Collections / Threads - should move this probably
 router.get('/me', auth, async (req, res, next) => {
 
   // console.log('get request for users collections')
   try {
     const collections = await Collection.find({ owner: req.user._id });
-    
+    const threads = await Thread.find({ owner: req.user._id }) 
+
     res.send({
       user: req.user,
-      collections
+      collections,
+      threads
     });
   } catch (e) {
     console.log(e)
