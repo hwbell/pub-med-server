@@ -37,11 +37,7 @@ const threadSchema = new mongoose.Schema({
   comments: {
     type: Array,
     // required: true,
-    validate(array) {
-      if (!array.length) {
-        throw new Error('Need a comment to start a comment section!')
-      } 
-    }
+    default: []
   }
 })
 
