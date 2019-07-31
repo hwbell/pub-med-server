@@ -80,6 +80,7 @@ const collectionThree = {
 // define some threads
 const threadOne = {
   owner: userOneId,
+  user: userOne.name,
   _id: collectionOneId,
   name: `Sourcing of ${collectionOne.articles[0]}`,
   article: {
@@ -94,6 +95,8 @@ const threadOne = {
 }
 
 const threadTwo = {
+  owner: userTwoId,
+  user: userTwo.name,
   _id: collectionTwoId,
   name: `Data in ${collectionTwo.articles[0]}`,
   article: {

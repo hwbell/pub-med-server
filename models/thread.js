@@ -12,6 +12,11 @@ const threadSchema = new mongoose.Schema({
     required: true,
     ref: 'User'
   },
+  user: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: new Date()
@@ -31,11 +36,11 @@ const threadSchema = new mongoose.Schema({
   },
   comments: {
     type: Array,
-    required: true,
+    // required: true,
     validate(array) {
       if (!array.length) {
-        throw new Error('Need a comment to start a thread!')
-      }
+        throw new Error('Need a comment to start a comment section!')
+      } 
     }
   }
 })
