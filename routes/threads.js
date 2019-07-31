@@ -100,7 +100,7 @@ router.patch('/:id', auth, async (req, res, next) => {
 })
 
 /* PATCH a thread's comments */
-router.patch('/comments/:id', async (req, res, next) => {
+router.patch('/comments/:id', auth, async (req, res, next) => {
   const _id = req.params.id;
   const newComment = req.body;
 
@@ -121,20 +121,23 @@ router.patch('/comments/:id', async (req, res, next) => {
 
     // if its an addition, add the comment onto the comments
     if (newComment.add) {
+      console.log('adding comment')
       newComment.createdAt = new Date();
-      
+
       thread.comments.push(newComment);
     }
     // otherwise, remove it
     else {
       let comments = thread.comments;
-      comments = comments.filter(comment => comment.text !== newComment.text); 
+      comments = comments.filter(comment => comment.text !== newComment.text);
       thread.comments = comments;
     }
 
     await thread.save();
 
-    res.status(201).send(thread);
+    const threads = await Thread.find({ owner: req.user._id });
+
+    res.status(201).send(threads);
 
   } catch (e) {
     console.log(e)
