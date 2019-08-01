@@ -77,7 +77,7 @@ router.post('/', auth, async (req, res, next) => {
 
 })
 
-/* Update an single collection */
+/* PATCH a single collection */
 router.patch('/:id', auth, async (req, res) => {
   const id = req.params.id;
   

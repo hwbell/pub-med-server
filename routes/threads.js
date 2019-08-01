@@ -133,6 +133,7 @@ router.patch('/comments/:id', auth, async (req, res, next) => {
       thread.comments = comments;
     }
 
+    thread.lastUpdated = new Date();
     await thread.save();
 
     const threads = await Thread.find({ owner: req.user._id });
