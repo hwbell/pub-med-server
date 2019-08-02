@@ -45,13 +45,17 @@ const threadSchema = new mongoose.Schema({
   }
 })
 
-// threadSchema.pre('save', async function (next) {
-//   const thread = this;
+threadSchema.pre('save', async function (next) {
+  const thread = this;
 
-//   // console.log('just before saving')
+  // this will assign the commentsCount to the length of the comments
+  // so we don't have to do it manually
+  if (!this.commentsCount) {
+    this.commentsCount = this.comments.length;
+  }
 
-//   next();
-// })
+  next();
+})
 
 const Thread = mongoose.model('Thread', threadSchema);
 
