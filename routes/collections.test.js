@@ -27,7 +27,7 @@ describe('Collections endpoints', () => {
       .expect(200)
     
     expect(response.body.collections.length).toBe(1)
-    expect(response.body.threads.length).toBe(1)
+    expect(response.body.threads.length).toBe(16)
 
     const collection = await Collection.findById(response.body.collections[0]._id);
     expect(collection.name).toBe(collectionOne.name)
@@ -41,7 +41,7 @@ describe('Collections endpoints', () => {
 
   it('should get a collection by id', async () => {
     const id = collectionOne._id.toString();
-    console.log(`/collections/single/${id}`)
+    // console.log(`/collections/single/${id}`)
     const response = await request(app)
       .get(`/collections/single/${id}`)
       .expect(200)
@@ -54,7 +54,7 @@ describe('Collections endpoints', () => {
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .send(collectionThree)
       .expect(201)
-    console.log(response.body.length)
+    // console.log(response.body.length)
 
     // check the second item, since we had already inserted a collection before
     const collection = await Collection.findById(response.body[1]._id);

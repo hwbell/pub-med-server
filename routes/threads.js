@@ -21,6 +21,48 @@ router.post('/', auth, async (req, res, next) => {
   }
 
 })
+
+// GET threads (all) with the page param. 
+// sort the threads accordingly, and send back the page wanted
+router.get('/all/:sortBy/:page', auth, async (req, res, next) => {
+
+  let { sortBy, page } = req.params;
+
+  console.log(sortBy, page)
+
+  try {
+    let allowedSorters = ['date', 'comments'];
+    if (!allowedSorters.includes(sortBy)) {
+      console.log('Invalid or missing sort parameter.')
+      return res.status(404).send();
+    }
+
+    page = Number(page);
+    if (page === NaN) {
+      return res.status(404).send('Invalid or missing page parameter.');
+    }
+
+    let threads;
+
+    if (sortBy === 'comments') {
+      threads = await Thread.find({}).sort({ commentsCount: -1 })
+    } else {
+      threads = await Thread.find({}).sort({ createdAt: -1 })
+    }
+
+    let start = page * 10 - 10;
+    let end = page * 10;
+
+    console.log('just before sending')
+    res.send(threads.slice(start, end));
+
+  } catch (e) {
+    console.log(e)
+    res.status(400).send(e);
+  }
+
+})
+
 /* GET a single thread */
 router.get('/single/:id', async (req, res, next) => {
 
@@ -113,7 +155,7 @@ router.patch('/comments/:id', auth, async (req, res, next) => {
   try {
     // get the thread from the db
     const thread = await Thread.findOne({ _id });
-    console.log(thread)
+    // console.log(thread)
 
     if (!thread) {
       return res.status(404).send();

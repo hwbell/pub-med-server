@@ -60,7 +60,7 @@ router.get('/me', auth, async (req, res, next) => {
 
 /* POST a new collection */
 router.post('/', auth, async (req, res, next) => {
-  console.log(req.body)
+  // console.log(req.body)
   const collection = new Collection({
     ...req.body,
     owner: req.user._id

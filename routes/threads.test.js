@@ -1,8 +1,8 @@
 const app = require('../app');
 const Thread = require('../models/thread.js');
+const { compareDates } = require('../tools/helperFunctions');
 
-
-const { userOne, userTwo, threadOne, threadTwo, setupDatabase } = require('./testSetup/db');
+const { userOne, userTwo, userThree, threadOne, threadTwo, setupDatabase } = require('./testSetup/db');
 
 // use supertest for route testing
 const request = require('supertest');
@@ -18,27 +18,87 @@ describe('Threads endpoints', () => {
       .expect(201)
     // console.log(response.body)
 
-    const thread = await Thread.findOne({ name: threadOne.name });
-    expect(thread).not.toBeNull();
+    const thread = await Thread.findOne({ _id: threadTwo._id });
+    expect(thread.name).toBe(threadTwo.name)
+  })
+
+  it('should get all threads according date sorter', async () => {
+    let sortBy = 'date';
+    let page = 1;
+
+    const get = await request(app)
+      .get(`/threads/all/${sortBy}/${page}`)
+      .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+      .expect(200)
+
+    let threads = get.body;
+
+    expect(threads.length).toBe(10);
+    
+    // check if they are actually sorted
+    let check = threads.every((thread, i) => {
+      
+      // check the date is more recent than the next thread in line, if its there
+      let nextThread = threads[i+1];
+      if (nextThread) {
+        return compareDates(thread.createdAt, nextThread.createdAt)
+      }
+      // this means we're at the end
+      return true;
+    })
+
+    expect(check).toBe(true);
+  })
+
+  it('should get all threads according comments sorter', async () => {
+    let sortBy = 'comments';
+    let page = 2;
+
+    const get = await request(app)
+      .get(`/threads/all/${sortBy}/${page}`)
+      .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+      .expect(200)
+
+    let threads = get.body;
+
+    expect(threads.length).toBe(10);
+    
+    // check if they are actually sorted
+    let check = threads.every((thread, i) => {
+      
+      // check the date is more recent than the next thread in line, if its there
+      let nextThread = threads[i+1];
+
+      if (nextThread) {
+        console.log(thread.commentsCount, nextThread.commentsCount)
+        return thread.commentsCount >= nextThread.commentsCount
+      }
+      // this means we're at the end
+      return true;
+    })
+
+    expect(check).toBe(true);
   })
 
   it('should get a users threads', async () => {
 
-    // post a thread on top of the existing one
-    const post = await request(app)
-      .post('/threads')
-      .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
-      .send(threadTwo)
-      .expect(201)
-
     // get all the user's threads, should be 2 there now
-    const get = await request(app)
+    const userOneResponse = await request(app)
       .get('/threads/me')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .expect(200)
 
     // console.log(get.body)
-    expect(get.body.length).toBe(2)
+    expect(userOneResponse.body.length).toBe(16)
+
+    const userTwoResponse = await request(app)
+      .get('/threads/me')
+      .set('Authorization', `Bearer ${userTwo.tokens[0].token}`)
+      .expect(200)
+
+    // console.log(get.body)
+    expect(userTwoResponse.body.length).toBe(15)
+
   })
 
   it('should get a single thread', async () => {
@@ -98,7 +158,7 @@ describe('Threads endpoints', () => {
     // assert it worked - now the first comment should be the one we added, and there should be only 1 comment
     thread = await Thread.findOne({ _id: threadOne._id });
     expect(thread.comments[0]).toMatchObject(commentsPatch);
-    console.log(thread.comments[0])
+    // console.log(thread.comments[0])
 
   })
 

@@ -38,6 +38,10 @@ const threadSchema = new mongoose.Schema({
     type: Array,
     // required: true,
     default: []
+  },
+  commentsCount: {
+    type: Number,
+    default: 0
   }
 })
 

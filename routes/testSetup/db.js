@@ -6,9 +6,14 @@ const Thread = require('../../models/thread');
 
 const userOneId = new mongoose.Types.ObjectId();
 const userTwoId = new mongoose.Types.ObjectId();
+const userThreeId = new mongoose.Types.ObjectId();
 const collectionOneId = new mongoose.Types.ObjectId();
 const collectionTwoId = new mongoose.Types.ObjectId();
 
+// use this to randomize the dates, so we can test the sorting 
+function randomDate(start, end) {
+  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
 
 // define some users and collections - when we initialize the database below, we will
 // save one user(userOne) with one collection(collectionOne)
@@ -34,10 +39,21 @@ const userTwo = {
     }
   ]
 }
+const userThree = {
+  _id: userThreeId,
+  name: 'Duder',
+  password: 'asufrubf!!!',
+  email: 'maduder@mail.com',
+  tokens: [
+    {
+      token: jwt.sign({ _id: userThreeId }, process.env.JWT_SECRET)
+    }
+  ]
+}
 
 const collectionOne = {
   _id: collectionOneId,
-  owner: userOneId, 
+  owner: userOneId,
   name: 'Cancer Biology',
   articles: [
     {
@@ -51,7 +67,7 @@ const collectionOne = {
 
 const collectionTwo = {
   _id: collectionTwoId,
-  owner: userTwoId, 
+  owner: userTwoId,
   name: 'Immunology',
   articles: [
     {
@@ -110,6 +126,28 @@ const threadTwo = {
   ]
 }
 
+let manyThreads = [];
+for (let i = 0; i < 30; i++) {
+  let thread = {
+    owner: i % 2 === 0 ? userOneId : userTwoId,
+    user: `user-${i + 1}`,
+    _id: new mongoose.Types.ObjectId(),
+    name: Math.random().toString(),
+    article: {
+      PMID: collectionTwo.articles[0]
+    },
+    comments: [
+      {
+        user: userTwo.name,
+        text: 'There is a lack of good data supporting the hypothesis in this article.'
+      }
+    ],
+    commentsCount: Math.floor(Math.random() * 100),
+    createdAt: randomDate(new Date(2016, 0, 1), new Date())
+  }
+  manyThreads.push(thread);
+}
+
 // wipe and setup both the User and Collection schemas for testing
 const setupDatabase = async () => {
 
@@ -117,8 +155,9 @@ const setupDatabase = async () => {
   await Collection.deleteMany();
   await Thread.deleteMany();
 
-  // save one user - userOne
+  // save users - userOne + userTow
   await new User(userOne).save();
+  await new User(userTwo).save();
 
   // save one collection with userOne as its owner
   await new Collection(collectionOne).save();
@@ -128,6 +167,13 @@ const setupDatabase = async () => {
 
   // // save one thread with userOne as its owner
   await new Thread(threadOne).save();
+
+  // then throw some others in there
+  for (let i = 0; i < manyThreads.length; i++) {
+    await new Thread(manyThreads[i]).save();
+  }
+
+
 }
 
 module.exports = {
@@ -135,6 +181,8 @@ module.exports = {
   userOne,
   userTwoId,
   userTwo,
+  userThree,
+  userThreeId,
   collectionOne,
   collectionTwo,
   collectionThree,

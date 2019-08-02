@@ -1,7 +1,7 @@
 const app = require('../app');
 const User = require('../models/user');
 
-const { userOneId, userOne, userTwo, setupDatabase } = require('./testSetup/db');
+const { userOne, userThree, setupDatabase } = require('./testSetup/db');
 
 // use supertest for route testing
 const request = require('supertest');
@@ -57,8 +57,8 @@ describe('Users endpoints', () => {
     await request(app)
       .post('/users/login')
       .send({
-        password: userTwo.password,
-        email: userTwo.email
+        password: userThree.password,
+        email: userThree.email
       })
       .expect(400)
   })
@@ -98,7 +98,7 @@ describe('Users endpoints', () => {
   it('should not logout a user that is not logged in', async () => {
     await request(app)
       .post('/users/logout')
-      .set('Authorization', `Bearer ${userTwo.tokens[0].token}`)
+      .set('Authorization', `Bearer ${userThree.tokens[0].token}`)
       .send()
       .expect(401)
   })
@@ -130,7 +130,7 @@ describe('Users endpoints', () => {
       .send(userPatch)
       .expect(201)
 
-    console.log(response.body)
+    // console.log(response.body)
     const user = await User.findById(response.body._id);
     expect(user.about).toEqual(userPatch.about);
   })
