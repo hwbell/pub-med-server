@@ -46,7 +46,6 @@ const threadSchema = new mongoose.Schema({
 })
 
 threadSchema.pre('save', async function (next) {
-  const thread = this;
 
   // this will assign the commentsCount to the length of the comments
   // so we don't have to do it manually
@@ -54,7 +53,6 @@ threadSchema.pre('save', async function (next) {
     this.commentsCount = this.comments.length;
   }
 
-  next();
 })
 
 const Thread = mongoose.model('Thread', threadSchema);

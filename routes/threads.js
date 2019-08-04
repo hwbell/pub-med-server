@@ -13,8 +13,9 @@ router.post('/', auth, async (req, res, next) => {
 
   try {
     await thread.save();
-    const threads = await Thread.find({ owner: req.user._id });
-    res.status(201).send(threads);
+    const updatedThreads = await Thread.find({owner: req.user._id}).sort({ createdAt: -1 });
+    
+    res.status(201).send(updatedThreads.slice(0, 10));
   } catch (e) {
     console.log(e)
     res.status(400).send(e);
@@ -71,13 +72,13 @@ router.get('/single/:id', async (req, res, next) => {
   const _id = req.params.id;
 
   try {
-    const threads = await Thread.findOne({ _id });
+    const thread= await Thread.findOne({ _id });
 
-    if (!threads) {
+    if (!thread) {
       return res.status(404).send();
     }
 
-    res.send(threads);
+    res.send(thread);
 
   } catch (e) {
     console.log(e)
@@ -117,7 +118,7 @@ router.patch('/:id', auth, async (req, res, next) => {
   }
 
   try {
-    const thread = await Thread.findOne({ _id: req.params.id, owner: req.user._id })
+    const thread = await Thread.findOne({ _id: req.params.id, owner: req.user._id });
     // const collection = await Collection.findById(req.params.id);
 
     if (!thread) {
@@ -131,9 +132,9 @@ router.patch('/:id', auth, async (req, res, next) => {
 
     await thread.save();
 
-    // send the new list back
-    const threads = await Thread.find({}).sort({ createdAt: -1 });
-    res.status(201).send(threads);
+    // send the new thread back
+    const updatedThread = await Thread.findOne({ _id: req.params.id, owner: req.user._id });
+    res.status(201).send(updatedThread);
 
   } catch (e) {
     res.status(400).send(e);
@@ -155,7 +156,7 @@ router.patch('/comments/:id', auth, async (req, res, next) => {
   try {
     // get the thread from the db
     const thread = await Thread.findOne({ _id });
-    // console.log(thread)
+    console.log('thread found')
 
     if (!thread) {
       return res.status(404).send();
@@ -178,9 +179,10 @@ router.patch('/comments/:id', auth, async (req, res, next) => {
     thread.lastUpdated = new Date();
     await thread.save();
 
-    // send the new list back
-    const threads = await Thread.find({}).sort({ createdAt: -1 });
-    res.status(201).send(threads);
+    // send the new thread back
+    const updatedThread = await Thread.findOne({ _id });
+    console.log(updatedThread)
+    res.status(201).send(updatedThread);
 
   } catch (e) {
     console.log(e)
@@ -198,8 +200,9 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).send();
     }
     // send the new list back
-    const threads = await Thread.find({ owner: req.user._id });
+    const threads = await Thread.find({owner: req.user._id}).sort({ createdAt: -1 });
     res.send(threads);
+
   } catch (e) {
     res.statusCode(400).send;
   }

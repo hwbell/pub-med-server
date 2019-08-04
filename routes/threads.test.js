@@ -11,7 +11,7 @@ describe('Threads endpoints', () => {
   beforeEach(setupDatabase);
 
   it('should post a new thread', async () => {
-    const response = await request(app)
+    const post = await request(app)
       .post('/threads')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .send(threadTwo)
@@ -20,9 +20,11 @@ describe('Threads endpoints', () => {
 
     const thread = await Thread.findOne({ _id: threadTwo._id });
     expect(thread.name).toBe(threadTwo.name)
+
+    expect(post.body.length).toBe(10)
   })
 
-  it('should get all threads according date sorter', async () => {
+  it('should get all threads according to date sorter', async () => {
     let sortBy = 'date';
     let page = 1;
 
@@ -50,7 +52,7 @@ describe('Threads endpoints', () => {
     expect(check).toBe(true);
   })
 
-  it('should get all threads according comments sorter', async () => {
+  it('should get all threads according to comments sorter', async () => {
     let sortBy = 'comments';
     let page = 2;
 
@@ -82,7 +84,7 @@ describe('Threads endpoints', () => {
 
   it('should get a users threads', async () => {
 
-    // get all the user's threads, should be 2 there now
+    // get all the user's threads, should be 16 there now
     const userOneResponse = await request(app)
       .get('/threads/me')
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
@@ -103,11 +105,15 @@ describe('Threads endpoints', () => {
 
   it('should get a single thread', async () => {
 
-    let id = threadOne._id.toString();
+    let _id = threadOne._id.toString();
 
     const get = await request(app)
-      .get(`/threads/single/${id}`)
+      .get(`/threads/single/${_id}`)
       .expect(200)
+
+      expect(get.body._id).toBe(threadOne._id.toString())
+      expect(get.body.owner).toBe(userOne._id.toString())
+
   })
 
   it('should patch a threads info', async () => {
@@ -123,6 +129,8 @@ describe('Threads endpoints', () => {
 
     const thread = await Thread.findOne({ paragraph: 'Additional info and sources ... ' });
     expect(thread.name).toBe(threadOne.name)
+
+    expect(patch.body._id).toBe(thread._id.toString());
   })
 
   it('should modify a threads comments', async () => {
@@ -145,6 +153,8 @@ describe('Threads endpoints', () => {
     let thread = await Thread.findOne({ _id: threadOne._id });
     expect(thread.comments[thread.comments.length - 1]).toMatchObject(commentsPatch);
 
+    expect(patch.body._id).toBe(thread._id.toString());
+
     // define the comment to be removed
     const commentsRemove = threadOne.comments[0];
 
@@ -158,7 +168,8 @@ describe('Threads endpoints', () => {
     // assert it worked - now the first comment should be the one we added, and there should be only 1 comment
     thread = await Thread.findOne({ _id: threadOne._id });
     expect(thread.comments[0]).toMatchObject(commentsPatch);
-    // console.log(thread.comments[0])
+    
+    expect(remove.body._id).toBe(thread._id.toString());    
 
   })
 
@@ -170,6 +181,13 @@ describe('Threads endpoints', () => {
 
     const thread = await Thread.findOne({ _id: threadOne._id });
     expect(thread).toBeNull();
+
+    // assert we get the user's threads back, length being -1 from above
+    expect(patch.body.length).toBe(15);
+    
+    patch.body.forEach( (item) => {
+      expect(item.owner).toBe(userOne._id.toString());
+    });
 
   })
 })

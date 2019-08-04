@@ -1,4 +1,5 @@
 
+
 // this will compare two javascript dates, such as those on the mongoose schemas
 // for 'createdAt', 'lastUpdated'
 function compareDates(date1, date2) {
