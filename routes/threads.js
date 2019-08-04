@@ -132,7 +132,7 @@ router.patch('/:id', auth, async (req, res, next) => {
     await thread.save();
 
     // send the new list back
-    const threads = await Thread.find({});
+    const threads = await Thread.find({}).sort({ createdAt: -1 });
     res.status(201).send(threads);
 
   } catch (e) {
@@ -179,7 +179,7 @@ router.patch('/comments/:id', auth, async (req, res, next) => {
     await thread.save();
 
     // send the new list back
-    const threads = await Thread.find({});
+    const threads = await Thread.find({}).sort({ createdAt: -1 });
     res.status(201).send(threads);
 
   } catch (e) {
