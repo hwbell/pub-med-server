@@ -132,7 +132,7 @@ router.patch('/:id', auth, async (req, res, next) => {
     await thread.save();
 
     // send the new list back
-    const threads = await Thread.find({ owner: req.user._id });
+    const threads = await Thread.find({});
     res.status(201).send(threads);
 
   } catch (e) {
@@ -178,8 +178,8 @@ router.patch('/comments/:id', auth, async (req, res, next) => {
     thread.lastUpdated = new Date();
     await thread.save();
 
-    const threads = await Thread.find({ owner: req.user._id });
-
+    // send the new list back
+    const threads = await Thread.find({});
     res.status(201).send(threads);
 
   } catch (e) {
