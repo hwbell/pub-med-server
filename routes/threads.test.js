@@ -21,7 +21,7 @@ describe('Threads endpoints', () => {
     const thread = await Thread.findOne({ _id: threadTwo._id });
     expect(thread.name).toBe(threadTwo.name)
 
-    expect(post.body.length).toBe(10)
+    expect(post.body.name).toBe(threadTwo.name)
   })
 
   it('should get all threads according to date sorter', async () => {

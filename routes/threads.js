@@ -13,9 +13,8 @@ router.post('/', auth, async (req, res, next) => {
 
   try {
     await thread.save();
-    const updatedThreads = await Thread.find({owner: req.user._id}).sort({ createdAt: -1 });
     
-    res.status(201).send(updatedThreads.slice(0, 10));
+    res.status(201).send(thread);
   } catch (e) {
     console.log(e)
     res.status(400).send(e);
