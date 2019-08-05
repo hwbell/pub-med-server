@@ -107,7 +107,7 @@ router.patch('/:id', auth, async (req, res, next) => {
 
   // console.log(req.body)
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['paragraph', 'name'];
+  const allowedUpdates = ['paragraph', 'name', 'article'];
   const isValidUpdate = updates.every((update) => allowedUpdates.includes(update));
 
   if (!isValidUpdate) {
