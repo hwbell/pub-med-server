@@ -154,6 +154,8 @@ describe('Threads endpoints', () => {
     expect(thread.comments[thread.comments.length - 1]).toMatchObject(commentsPatch);
 
     expect(patch.body._id).toBe(thread._id.toString());
+    expect(thread.commentsCount).toBe(thread.comments.length)
+
 
     // define the comment to be removed
     const commentsRemove = threadOne.comments[0];
@@ -190,5 +192,6 @@ describe('Threads endpoints', () => {
     });
 
   })
+
 })
 
