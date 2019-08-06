@@ -30,7 +30,6 @@ describe('Threads endpoints', () => {
 
     const get = await request(app)
       .get(`/threads/all/${sortBy}/${page}`)
-      .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .expect(200)
 
     let threads = get.body;

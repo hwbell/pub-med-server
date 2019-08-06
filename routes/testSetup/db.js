@@ -9,6 +9,7 @@ const userTwoId = new mongoose.Types.ObjectId();
 const userThreeId = new mongoose.Types.ObjectId();
 const collectionOneId = new mongoose.Types.ObjectId();
 const collectionTwoId = new mongoose.Types.ObjectId();
+const collectionThreeId = new mongoose.Types.ObjectId();
 
 // use this to randomize the dates, so we can test the sorting 
 function randomDate(start, end) {
@@ -62,7 +63,8 @@ const collectionOne = {
     {
       PMID: '310460980'
     }
-  ]
+  ],
+  createdAt: randomDate(new Date(2016, 0, 1), new Date())
 }
 
 const collectionTwo = {
@@ -76,12 +78,13 @@ const collectionTwo = {
     {
       PMID: '987984637'
     }
-  ]
+  ],
+  createdAt: randomDate(new Date(2016, 0, 1), new Date())
 }
 
 const collectionThree = {
-  // _id: collectionTwoId,
-  // owner: userTwoId, 
+  _id: collectionThreeId,
+  owner: userTwoId, 
   name: 'Neuroscience',
   articles: [
     {
@@ -90,7 +93,9 @@ const collectionThree = {
     {
       PMID: '246560280'
     }
-  ]
+  ],
+  createdAt: randomDate(new Date(2016, 0, 1), new Date())
+
 }
 
 // define some threads
@@ -164,6 +169,9 @@ const setupDatabase = async () => {
 
   // save one collection with userTwo as its owner
   await new Collection(collectionTwo).save();
+
+  // save one collection with userTwo as its owner
+  await new Collection(collectionThree).save();
 
   // // save one thread with userOne as its owner
   await new Thread(threadOne).save();

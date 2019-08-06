@@ -22,9 +22,9 @@ router.post('/', auth, async (req, res, next) => {
 
 })
 
-// GET threads (all) with the page param. 
+// GET threads (all) with the page + sortBy params. 
 // sort the threads accordingly, and send back the page wanted
-router.get('/all/:sortBy/:page', auth, async (req, res, next) => {
+router.get('/all/:sortBy/:page', async (req, res, next) => {
 
   let { sortBy, page } = req.params;
 

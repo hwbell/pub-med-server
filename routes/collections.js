@@ -6,13 +6,39 @@ const Collection = require('../models/collection');
 const Thread = require('../models/thread');
 
 // get all the Public Collections
-router.get('/', async (req, res, next) => {
+// GET threads (all) with the page + sortBy params. 
+// sort the threads accordingly, and send back the page wanted
+router.get('/all/:sortBy/:page', async (req, res, next) => {
+
+  let { sortBy, page } = req.params;
+
+  console.log(sortBy, page)
 
   try {
-    const collections = await Collection.find({});
-    res.send(collections);
+    let allowedSorters = ['date'];
+    if (!allowedSorters.includes(sortBy)) {
+      console.log('Invalid or missing sort parameter.')
+      return res.status(404).send();
+    }
+
+    page = Number(page);
+    if (page === NaN) {
+      return res.status(404).send('Invalid or missing page parameter.');
+    }
+
+    let threads;
+
+    collections = await Collection.find({}).sort({ createdAt: -1 })
+
+    let start = page * 10 - 10;
+    let end = page * 10;
+
+    console.log('just before sending')
+    res.send(collections.slice(start, end));
+
   } catch (e) {
-    res.status(500).send(e);
+    console.log(e)
+    res.status(400).send(e);
   }
 
 })
@@ -21,11 +47,11 @@ router.get('/', async (req, res, next) => {
 router.get('/single/:id', async (req, res, next) => {
 
   const _id = req.params.id;
-  
+
   try {
     // const collection = await Collection.findById(_id);
-    const collection = await Collection.findOne({ _id }) 
-    
+    const collection = await Collection.findOne({ _id })
+
     if (!collection) {
       return res.status(404).send();
     }
@@ -44,7 +70,7 @@ router.get('/me', auth, async (req, res, next) => {
   // console.log('get request for users collections')
   try {
     const collections = await Collection.find({ owner: req.user._id });
-    const threads = await Thread.find({ owner: req.user._id }) 
+    const threads = await Thread.find({ owner: req.user._id })
 
     res.send({
       user: req.user,
@@ -80,7 +106,7 @@ router.post('/', auth, async (req, res, next) => {
 /* PATCH a single collection */
 router.patch('/:id', auth, async (req, res) => {
   const id = req.params.id;
-  
+
   const updates = Object.keys(req.body);
   const allowedUpdates = ['name', 'articles'];
   const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
@@ -92,13 +118,13 @@ router.patch('/:id', auth, async (req, res) => {
   }
 
   try {
-    const collection = await Collection.findOne({ _id: req.params.id, owner: req.user._id})
+    const collection = await Collection.findOne({ _id: req.params.id, owner: req.user._id })
     // const collection = await Collection.findById(req.params.id);
-    
+
     if (!collection) {
       return res.status(404).send();
     }
-    
+
     updates.forEach((update) => {
       collection[update] = req.body[update];
     });
@@ -110,7 +136,7 @@ router.patch('/:id', auth, async (req, res) => {
     const collections = await Collection.find({ owner: req.user._id });
     res.status(201).send(collections);
 
-  } catch(e) {  
+  } catch (e) {
     res.status(400).send(e);
   }
 })
@@ -118,7 +144,7 @@ router.patch('/:id', auth, async (req, res) => {
 // delete a user's collection
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const collection = await Collection.findOneAndDelete({ _id: req.params.id, owner: req.user._id})
+    const collection = await Collection.findOneAndDelete({ _id: req.params.id, owner: req.user._id })
 
     if (!collection) {
       return res.status(404).send();
@@ -126,7 +152,7 @@ router.delete('/:id', auth, async (req, res) => {
     // send the new list back
     const collections = await Collection.find({ owner: req.user._id });
     res.send(collections);
-  } catch(e) {
+  } catch (e) {
     res.statusCode(400).send;
   }
 })
