@@ -98,7 +98,7 @@ describe('Collections endpoints', () => {
         name: 'Biomedical',
       })
       .expect(201)
-    const collection = await Collection.findById(response.body[0]._id);
+    const collection = await Collection.findById(response.body._id);
     expect(collection.name).toBe('Biomedical')
   })
 

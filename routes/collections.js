@@ -105,8 +105,8 @@ router.post('/', auth, async (req, res, next) => {
 
 /* PATCH a single collection */
 router.patch('/:id', auth, async (req, res) => {
-  const id = req.params.id;
-
+  const _id = req.params.id;
+  
   const updates = Object.keys(req.body);
   const allowedUpdates = ['name', 'articles'];
   const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
@@ -118,7 +118,7 @@ router.patch('/:id', auth, async (req, res) => {
   }
 
   try {
-    const collection = await Collection.findOne({ _id: req.params.id, owner: req.user._id })
+    const collection = await Collection.findOne({ _id, owner: req.user._id })
     // const collection = await Collection.findById(req.params.id);
 
     if (!collection) {
@@ -133,7 +133,7 @@ router.patch('/:id', auth, async (req, res) => {
     await collection.save();
 
     // send the new list back
-    const collections = await Collection.find({ owner: req.user._id });
+    const collections = await Collection.findOne({ _id, owner: req.user._id });
     res.status(201).send(collections);
 
   } catch (e) {

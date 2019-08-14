@@ -71,7 +71,7 @@ describe('Threads endpoints', () => {
       let nextThread = threads[i+1];
 
       if (nextThread) {
-        console.log(thread.commentsCount, nextThread.commentsCount)
+        // console.log(thread.commentsCount, nextThread.commentsCount)
         return thread.commentsCount >= nextThread.commentsCount
       }
       // this means we're at the end
