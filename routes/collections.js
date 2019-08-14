@@ -86,7 +86,7 @@ router.get('/me', auth, async (req, res, next) => {
 
 /* POST a new collection */
 router.post('/', auth, async (req, res, next) => {
-  // console.log(req.body)
+
   const collection = new Collection({
     ...req.body,
     owner: req.user._id
@@ -94,8 +94,8 @@ router.post('/', auth, async (req, res, next) => {
 
   try {
     await collection.save();
-    const collections = await Collection.find({ owner: req.user._id });
-    res.status(201).send(collections);
+    const updatedCollection = await Collection.findOne({ _id: collection._id, owner: req.user._id })
+    res.status(201).send(updatedCollection);
   } catch (e) {
     console.log(e)
     res.status(400).send(e);

@@ -3,7 +3,7 @@ const Collection = require('../models/collection');
 const User = require('../models/user');
 const Thread = require('../models/thread');
 const { userOne, userTwo, setupDatabase, collectionOne, collectionThree, threadOne } = require('./testSetup/db');
-const {compareDates} = require('../tools/helperFunctions');
+const { compareDates } = require('../tools/helperFunctions');
 // use supertest for route testing
 const request = require('supertest');
 const mongoose = require('mongoose');
@@ -70,7 +70,7 @@ describe('Collections endpoints', () => {
   })
 
   it('should post a new collection', async () => {
-    
+
     let newCollection = JSON.parse(JSON.stringify(collectionThree));
     // change the unique props 
     newCollection._id = new mongoose.Types.ObjectId();
@@ -84,8 +84,12 @@ describe('Collections endpoints', () => {
     console.log(response.body)
 
     // check the second item, since we had already inserted a collection before
-    const collection = await Collection.findById(response.body[1]._id);
+    const collection = await Collection.findById(response.body._id);
     expect(collection.name).toBe(newCollection.name)
+
+    collection.articles.forEach((article, i) => {
+      expect(article).toMatchObject(newCollection.articles[i])
+    })
   })
 
   it('should patch an existing collection', async () => {
