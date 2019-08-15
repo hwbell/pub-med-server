@@ -26,14 +26,19 @@ const collectionSchema = new mongoose.Schema({
       }
       
     }
+  },
+  articlesCount: {
+    type: Number,
+    default: 0
   }
 })
 
 collectionSchema.pre('save', async function (next) {
   const user = this;
 
-  // console.log('just before saving')
-
+  // this will assign the commentsCount to the length of the comments
+  // so we don't have to do it manually
+  this.articlesCount = this.articles.length;
   next();
 })
 

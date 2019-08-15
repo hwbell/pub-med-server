@@ -90,6 +90,9 @@ describe('Collections endpoints', () => {
     collection.articles.forEach((article, i) => {
       expect(article).toMatchObject(newCollection.articles[i])
     })
+
+    // make sure it adds a commentsCount prop
+    expect(collection.articlesCount).toBe(2);
   })
 
   it('should patch an existing collection', async () => {
