@@ -5,6 +5,8 @@ require('../db/mongoose');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
 
+const multer = require('multer');
+
 /* POST a new user */
 router.post('/', async (req, res, next) => {
   const user = new User(req.body);
@@ -52,7 +54,7 @@ router.patch('/me', auth, async (req, res) => {
   const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
   // 
   if (!isValidUpdate) {
-    
+
     return res.status(400).send({
       error: 'Invalid update.'
     })
@@ -85,6 +87,33 @@ router.patch('/me', auth, async (req, res) => {
     res.status(400).send(e);
   }
 
+})
+
+const upload = multer({
+  dest: 'avatars',
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+
+    // make sure the file is a jpg or jpeg
+    console.log('checking file type')
+    console.log(file)
+    // if the filetype is wrong
+    if (!file.originalname.endsWith('.jpeg') && !file.originalname.endsWith('.jpg')) {
+      console.log('wrong file type!')
+      return cb(new Error('File must be jpeg or jpg!'));
+    }
+
+    console.log('file type is ok')
+    // // things go well
+    cb(undefined, true)
+  }
+});
+
+// upload a profile picture
+router.post('/me/avatar', upload.single('avatar'), async (req, res) => {
+  res.send();
 })
 
 // logout a user

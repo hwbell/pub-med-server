@@ -19,7 +19,7 @@ const threadSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: new Date()
+    default: Date.now
   },
   article: {
     type: Object,

@@ -115,6 +115,14 @@ describe('Users endpoints', () => {
 
   })
 
+  it('should not get profile for user without token', async () => {
+    await request(app)
+      .get('/users/me')
+      // .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+      .send()
+      .expect(401)
+  })
+
   it('should patch a users profile with valid info', async () => {
 
     let userPatch = {
@@ -147,17 +155,17 @@ describe('Users endpoints', () => {
       .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
       .send(userPatch)
       .expect(400)
-
   })
 
+  it('should upload an image to users profile', async () => {
 
-
-  it('should not get profile for user without token', async () => {
-    await request(app)
-      .get('/users/me')
+    const filePath = `${__dirname}/testSetup/profilepic.jpeg`;
+    const response = await request(app)
+      .post('/users/me/avatar')
       // .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
-      .send()
-      .expect(401)
+      // .send()
+      .attach('avatar', filePath)
+      .expect(200)
   })
 
   it('should delete a user profile', async () => {
